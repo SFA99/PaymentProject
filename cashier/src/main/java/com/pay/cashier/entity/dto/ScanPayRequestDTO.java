@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScanPayRequestDTO {
+public class ScanPayRequestDTO extends TerminalInfo{
     private String orgid; // 集团/代理商商户号
     private String cusid; // 商户号
     private String appid; // 应用ID

@@ -1,0 +1,79 @@
+
+###  扫码支付
+### 通联支付-付款码聚合收款
+POST http://localhost:9999/order/ScanPay
+Content-Type: application/json
+
+{
+  "appid": "00256400",
+  "authcode": "130337574955252208",
+  "cusid": "55355105499VLTR",
+  "randomstr": "82712208",
+  "signtype": "RSA",
+  "trxamt": "20",
+  "trxid": "112094120001088317"
+}
+
+
+
+###  直接支付
+### 通联支付-付款码聚合收款
+POST http://localhost:9999/order/payment
+Content-Type: application/json; charset=UTF-8
+
+{
+  "appid": "00256400",
+  "cusid": "55355105499VLTR",
+  "signtype": "RSA",
+  "trxamt": "20",
+  "paytype": "W06"
+}
+
+
+###  退款
+### 通联支付-付款码聚合收款
+POST http://localhost:9999/order/refund
+Content-Type: application/json; charset=UTF-8
+
+{
+  "appid": "00256400",
+  "cusid": "55355105499VLTR",
+  "signtype": "RSA",
+  "trxamt": "20",
+  "oldreqsn": "1718781343524"
+}
+
+
+### 交易结果通知
+### 通联支付-付款码聚合收款
+POST http://localhost:9999/notify
+Content-Type: application/json; charset=UTF-8
+
+{
+  "appid": "ABCDEFGHIJKLMN",
+  "outtrxid": "XYZ1234567890ABC",
+  "trxcode": "TRADE0001",
+  "trxid": "TRX12345678ABCDE",
+  "initamt": "100.00",
+  "trxamt": "10000",
+  "trxdate": "20240619",
+  "paytime": "202406191030",
+  "cusid": "123456789012",
+  "cusorderid": "CUSORDER20240619",
+  "acct": "621700******4586",
+  "sign": "d41d8cd98f00b204e9800998ecf8427e"
+}
+
+
+
+### 终端信息采集接口-长沙振业城店
+POST https://vsp.allinpay.com/cusapi/merchantapi/addterm
+Content-Type: application/x-www-form-urlencoded
+
+cusid=55355105499VLTR&appid=00256400&termno=12345678&devicetype=11&operation=00&termstate=00&termaddress=湖南省-长沙市-岳麓区-临水路与映日路交汇处北150米振业城3期s4栋1层104、106号&signtype=RSA&sign=NEZVZ1rJgF8t%2FiLy6NsO%2BBAorTDCPD6UGcafvdngwTb7VvLOhpcRVCbrmNto5C4w0Soe%2F9AGbufwEI0s%2B9Tc%2B%2B0N8KlsowGRQnjYJIGtxWjqXvQEZWA4R2hfGF086SOyv3Z4BmKMV8CZiPeE9PqdKoirRV05Eu%2F6J4MHI5I2yqYWrA0MHsjy2IiTxLe8sJhprJ%2F4%2F%2BWzpCH%2Bi%2F6NdbSksn%2BcFbru1ppHoNRprPUoLU2mvjrMtdsmn7nUFR3BCDMJGsz8DVnLd0hgV2mN%2BL8zi0kodk1AiFuvOFqTSlUuZ3OaIL0TeGpSppUdeIgVe%2B5cK5lKMtXW5PtaN%2BU6UDh23Q%3D%3D
+
+### 终端信息查询接口-长沙振业城店
+POST https://vsp.allinpay.com/cusapi/merchantapi/qryterm
+Content-Type: application/x-www-form-urlencoded
+
+cusid=56255105499D5ZX&appid=00259522&termno=00000005&devicetype=11&signtype=RSA&sign=wCt2Fd5Dac%2FVGbw9mRCs%2BIxVPpJCoza3s37BC3F4xFnqbgo%2FWSdQKs2KXNTL%2BMGhQEn7%2FfSRz8aYRLBJepredFhLIAz5HzUbNxml%2BeZ4OkiR%2F2f4dXHu3z8meE5h%2FONbymjEjm69BJVDlI%2BV1h8A9lgpIg5AHQT8C4zRUgsxx7w4MA%2B1HXJ6cFs2VKSiR2sWL8%2B9I79u6EPyNr1CPtZh%2FtEWLtq66lSyWZ8hkd87m84XDF40jBO8Dj3d1L5km5ueAX9VTVV%2FvxDGdwC7BDvQLAmOr6kULB4UmYu2ZQWUvbPzr1O2D%2FlmkaL3porfiPDhJnSRrb8ON%2BbiAY2un5CwtA%3D%3D&querytype=AT

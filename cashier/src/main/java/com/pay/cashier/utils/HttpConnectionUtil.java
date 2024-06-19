@@ -97,6 +97,9 @@ public class HttpConnectionUtil {
         StringBuilder outBuf = new StringBuilder();
         boolean isNotFirst = false;
         for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (entry.getValue() == null){
+                continue;
+            }
             if (isNotFirst)
                 outBuf.append('&');
             isNotFirst = true;

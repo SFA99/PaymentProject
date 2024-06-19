@@ -12,14 +12,15 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order")
 @Slf4j
+@CrossOrigin
 public class PaymentController {
 
     @Autowired
     private OrderService orderService;
 
     //统一下单，异步类交易
-    @PutMapping("/payment")
-    public Result<Object> payment(@RequestBody PaymentRequestDTO paymentRequest){
+    @PostMapping("/payment")
+    public Result<Object> payment(@RequestBody PaymentRequestDTO paymentRequest) throws Exception{
 
         // 调用支付服务的pay方法，传入相关参数发起支付请求
         // 参数包括商户订单号、请求序列号、业务类型、订单标题、订单备注、商品描述等
@@ -33,6 +34,7 @@ public class PaymentController {
         // TODO Auto-generated method stub
         Map<String, String> map = orderService.scanPay(scanPayRequest);
         return Result.success(map);
+//        return Result.success(1);
     }
 
     //撤销

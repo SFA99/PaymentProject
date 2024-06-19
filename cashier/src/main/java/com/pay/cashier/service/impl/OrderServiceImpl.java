@@ -5,13 +5,17 @@ import com.pay.cashier.service.OrderService;
 import com.pay.cashier.utils.HttpConnectionUtil;
 import com.pay.cashier.utils.SybConstants;
 import com.pay.cashier.utils.SybUtil;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+
 
 
     @Override
@@ -28,10 +32,10 @@ public class OrderServiceImpl implements OrderService {
         // 根据配置，添加必要的请求参数
         // 生成请求序列号，用于唯一标识此次支付请求
         String reqsn = String.valueOf(System.currentTimeMillis());
-        if (!SybUtil.isEmpty(SybConstants.SYB_ORGID)) {
-            params.put("orgid", SybConstants.SYB_ORGID);
-            params.put("cusid", SybConstants.SYB_CUSID);
-            params.put("appid", SybConstants.SYB_APPID);
+        if (!SybUtil.isEmpty(paymentRequest.getOrgid()))
+            params.put("orgid", paymentRequest.getOrgid());
+            params.put("cusid", paymentRequest.getCusid());
+            params.put("appid", paymentRequest.getAppid());
             params.put("version", "11");
             params.put("trxamt", String.valueOf(paymentRequest.getTrxamt()));
             params.put("reqsn", reqsn);
@@ -40,8 +44,8 @@ public class OrderServiceImpl implements OrderService {
             params.put("body", paymentRequest.getBody());
             params.put("remark", paymentRequest.getRemark());
             params.put("validtime", paymentRequest.getValidtime());
-            params.put("acct", paymentRequest.getAcct());
-            params.put("notify_url", paymentRequest.getNotify_url());
+            params.put("acct", SybConstants.ACC);
+            params.put("notify_url", paymentRequest.getNotify_url() != null ? paymentRequest.getNotify_url() : SybConstants.NOTIFY_URL);
             params.put("limit_pay", paymentRequest.getLimit_pay());
             params.put("sub_appid", paymentRequest.getSub_appid());
             params.put("goods_tag", paymentRequest.getGoods_tag());
@@ -54,8 +58,8 @@ public class OrderServiceImpl implements OrderService {
             params.put("idno", paymentRequest.getIdno());
             params.put("truename", paymentRequest.getTruename());
             params.put("asinfo", paymentRequest.getAsinfo());
-            params.put("signtype", SybConstants.SIGN_TYPE);
-        }
+            params.put("signtype", paymentRequest.getSigntype());
+
         // 根据签名类型选择合适的appkey进行签名
         String appkey = "";
         if (SybConstants.SIGN_TYPE.equals("RSA")) {
@@ -99,6 +103,21 @@ public class OrderServiceImpl implements OrderService {
          */
         HttpConnectionUtil http = new HttpConnectionUtil(SybConstants.SYB_APIURL + "/scanqrpay");
 
+        Map<String, String> terminfoMap = new HashMap<>();
+        terminfoMap.put("termno", scanPayRequest.getTermno() == null ? "00000005" : scanPayRequest.getTermno()); // 确保这是正确的终端编号
+        terminfoMap.put("devicetype", scanPayRequest.getDevicetype() == null ? "11" : scanPayRequest.getDevicetype()); // 正确的设备类型
+        terminfoMap.put("termsn", scanPayRequest.getTermsn() == null ? "12345678" : scanPayRequest.getTermsn()); // 正确的终端序列号
+        terminfoMap.put("deviceip", scanPayRequest.getDeviceip() == null ? "39.96.56.110" : scanPayRequest.getDeviceip()); // 或使用实际的device_ip
+        terminfoMap.put("longitude", scanPayRequest.getLongitude() == null ? "113.572690475" : scanPayRequest.getLongitude());
+        terminfoMap.put("latitude", scanPayRequest.getLatitude() == null ? "22.297856983" : scanPayRequest.getLatitude()); // 取消注释并提供正确的纬度值
+
+        JSONObject termInfoJson = null;
+        try {
+             termInfoJson = new JSONObject(terminfoMap);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
         try {
             http.init();
         } catch (Exception e) {
@@ -106,12 +125,12 @@ public class OrderServiceImpl implements OrderService {
         }
         TreeMap<String, String> params = new TreeMap<String, String>();
         String reqsn = String.valueOf(System.currentTimeMillis());
-        if (!SybUtil.isEmpty(SybConstants.SYB_ORGID)) {
-            params.put("orgid", SybConstants.SYB_ORGID);
-            params.put("cusid", SybConstants.SYB_CUSID);
-            params.put("appid", SybConstants.SYB_APPID);
+        if (!SybUtil.isEmpty(scanPayRequest.getOperatorid()))
+            params.put("orgid", scanPayRequest.getOrgid());
+            params.put("cusid", scanPayRequest.getCusid());
+            params.put("appid", scanPayRequest.getAppid());
             params.put("version", "11");
-            params.put("trxamt", String.valueOf(scanPayRequest.getTrxamt()));
+            params.put("trxamt", scanPayRequest.getTrxamt());
             params.put("reqsn", reqsn);
             params.put("randomstr", SybUtil.getValidatecode(8));
             params.put("body", scanPayRequest.getBody());
@@ -119,8 +138,9 @@ public class OrderServiceImpl implements OrderService {
             params.put("authcode", scanPayRequest.getAuthcode());
             params.put("limit_pay", scanPayRequest.getLimit_pay());
             params.put("asinfo", scanPayRequest.getAsinfo());
-            params.put("signtype", SybConstants.SIGN_TYPE);
-        }
+            params.put("signtype", scanPayRequest.getSigntype());
+            params.put("terminfo", termInfoJson.toString());
+
         String appkey = "";
         if (SybConstants.SIGN_TYPE.equals("RSA")) {
             appkey = SybConstants.SYB_RSACUSPRIKEY;
@@ -151,18 +171,18 @@ public class OrderServiceImpl implements OrderService {
         }
         TreeMap<String, String> params = new TreeMap<String, String>();
         String reqsn = String.valueOf(System.currentTimeMillis());
-        if (!SybUtil.isEmpty(SybConstants.SYB_ORGID)) {
-            params.put("orgid", SybConstants.SYB_ORGID);
-            params.put("cusid", SybConstants.SYB_CUSID);
-            params.put("appid", SybConstants.SYB_APPID);
+        if (!SybUtil.isEmpty(cancelRequest.getOrgid()))
+            params.put("orgid", cancelRequest.getOrgid());
+            params.put("cusid", cancelRequest.getCusid());
+            params.put("appid", cancelRequest.getAppid());
             params.put("version", "11");
             params.put("trxamt", String.valueOf(cancelRequest.getTrxamt()));
             params.put("reqsn", reqsn);
             params.put("oldtrxid", cancelRequest.getOldtrxid());
             params.put("oldreqsn", cancelRequest.getOldreqsn());
             params.put("randomstr", SybUtil.getValidatecode(8));
-            params.put("signtype", SybConstants.SIGN_TYPE);
-        }
+            params.put("signtype", cancelRequest.getSigntype());
+
         String appkey = "";
         if (SybConstants.SIGN_TYPE.equals("RSA")) {
             appkey = SybConstants.SYB_RSACUSPRIKEY;
@@ -194,18 +214,18 @@ public class OrderServiceImpl implements OrderService {
         }
         TreeMap<String, String> params = new TreeMap<String, String>();
         String reqsn = String.valueOf(System.currentTimeMillis());
-        if (!SybUtil.isEmpty(SybConstants.SYB_ORGID)) {
-            params.put("orgid", SybConstants.SYB_ORGID);
-            params.put("cusid", SybConstants.SYB_CUSID);
-            params.put("appid", SybConstants.SYB_APPID);
+        if (!SybUtil.isEmpty(refundRequest.getOrgid()))
+            params.put("orgid", refundRequest.getOrgid());
+            params.put("cusid", refundRequest.getCusid());
+            params.put("appid", refundRequest.getAppid());
             params.put("version", "11");
             params.put("trxamt", String.valueOf(refundRequest.getTrxamt()));
             params.put("reqsn", reqsn);
             params.put("oldreqsn", refundRequest.getOldreqsn());
             params.put("oldtrxid", refundRequest.getOldtrxid());
             params.put("randomstr", SybUtil.getValidatecode(8));
-            params.put("signtype", SybConstants.SIGN_TYPE);
-        }
+            params.put("signtype", refundRequest.getSigntype());
+
         String appkey = "";
         if (SybConstants.SIGN_TYPE.equals("RSA")) {
             appkey = SybConstants.SYB_RSACUSPRIKEY;
@@ -223,6 +243,7 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        System.out.println("输出" + map);
         return map;
     }
 
@@ -236,16 +257,16 @@ public class OrderServiceImpl implements OrderService {
         }
         TreeMap<String, String> params = new TreeMap<String, String>();
         String reqsn = String.valueOf(System.currentTimeMillis());
-        if (!SybUtil.isEmpty(SybConstants.SYB_ORGID)) {
-            params.put("orgid", SybConstants.SYB_ORGID);
-            params.put("cusid", SybConstants.SYB_CUSID);
-            params.put("appid", SybConstants.SYB_APPID);
+        if (!SybUtil.isEmpty(queryRequest.getOrgid()))
+            params.put("orgid", queryRequest.getOrgid());
+            params.put("cusid", queryRequest.getCusid());
+            params.put("appid", queryRequest.getAppid());
             params.put("version", "11");
             params.put("reqsn", reqsn);
             params.put("trxid", queryRequest.getTrxid());
             params.put("randomstr", SybUtil.getValidatecode(8));
-            params.put("signtype", SybConstants.SIGN_TYPE);
-        }
+            params.put("signtype", queryRequest.getSigntype());
+
         String appkey = "";
         if (SybConstants.SIGN_TYPE.equals("RSA")) {
             appkey = SybConstants.SYB_RSACUSPRIKEY;
